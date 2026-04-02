@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TechGizmo - My Cart</title>
+    <!-- Import Poppins font for consistent typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #ecf0f1; /* Light background for clean look */
+            color: #2c3e50;
+        }
+        header {
+            background: #2c3e50; /* Dark header for contrast */
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        header img {
+            max-width: 60px;
+            margin-right: 10px; /* Space between logo and title */
+        }
+        header h1 {
+            display: inline;
+            font-size: 28px;
+            margin: 0;
+        }
+        header p {
+            font-size: 16px;
+            margin: 5px 0 0; /* Subtitle spacing */
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto; /* Centered with margin */
+            background: #fff;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 32px;
+        }
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0; /* Space around table */
+        }
+        .cart-table th, .cart-table td {
+            text-align: center;
+            padding: 12px;
+            border-bottom: 1px solid #ddd; /* Row separators */
+        }
+        .cart-table th {
+            background: #3498db; /* Blue headers for visibility */
+            color: #fff;
+        }
+        .cart-table td {
+            background: #fff;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s ease; /* Smooth hover effect */
+        }
+        .cart-actions {
+            margin-top: 25px;
+            text-align: center; /* Center the button */
+        }
+        .cancel-btn {
+            background: #f39c12; /* Orange for "Close" button */
+            color: #fff;
+        }
+        .cancel-btn:hover {
+            background: #d35400; /* Darker orange on hover */
+        }
+        .totals {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: right; /* Align total to right */
+        }
+        .totals span {
+            font-weight: 600; /* Bold total */
+        }
+        @media (max-width: 768px) {
+            .cart-table th, .cart-table td {
+                padding: 8px;
+                font-size: 14px; /* Smaller text on mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and title -->
+    <header>
+        <img src="../Resources/logo.png" alt="TechGizmo Logo">
+        <h1>TechGizmo</h1>
+        <p>Empowering Your Tech Future</p>
+    </header>
+
+    <!-- Main container for cart display -->
+    <div class="container">
+        <h2>My Cart</h2>
+
+        <!-- Table to display cart items dynamically (2e) -->
+        <table id="cartTable" class="cart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="cartItems"></tbody> <!-- Populated by MyCart.js -->
+        </table>
+
+        <!-- Display grand total  -->
+        <div class="totals" id="cartTotals"></div>
+
+        <!-- Navigation button to return to products (close button) -->
+        <div class="cart-actions">
+            <button class="btn cancel-btn" onclick="cancelCart()">Close</button>
+        </div>
+    </div>
+    <script src="MyCart.js"></script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<head>
+  <title>TechGizmo - Checkout</title>
+  <!-- Load Poppins font for consistent style -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #ecf0f1; /* Light background */
+      color: #2c3e50;
+    }
+    header {
+      background: #2c3e50; /* Dark header */
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    header img {
+      max-width: 60px; /* Small logo */
+      margin-right: 10px;
+    }
+    header h1 {
+      display: inline;
+      font-size: 28px;
+      margin: 0;
+    }
+    header p {
+      font-size: 16px;
+      margin: 5px 0 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto; /* Center content */
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px; /* Rounded corners */
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Light shadow */
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 32px;
+    }
+    .cart-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px; /* Space below table */
+    }
+    .cart-table th, .cart-table td {
+      text-align: center;
+      padding: 12px;
+      border-bottom: 1px solid #ddd; /* Row lines */
+    }
+    .cart-table th {
+      background: #3498db; /* Blue header */
+      color: #fff;
+    }
+    .cart-table td {
+      background: #fff;
+    }
+    form label {
+      display: block;
+      margin: 8px 0 5px;
+      font-weight: 600; /* Bold labels */
+    }
+    form input, form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px; /* Rounded inputs */
+      font-size: 16px;
+    }
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+      transition: 0.3s ease; /* Smooth button effects */
+    }
+    .btn-confirm {
+      background: #2ecc71; /* Green for confirm */
+      color: #fff;
+    }
+    .btn-confirm:hover {
+      background: #27ae60;
+    }
+    .btn-cancel {
+      background: #e74c3c; /* Red for cancel */
+      color: #fff;
+      margin-left: 10px;
+    }
+    .btn-cancel:hover {
+      background: #c0392b;
+    }
+    .totals {
+      font-size: 20px;
+      text-align: right; /* Show totals on right */
+      margin-bottom: 20px;
+    }
+    .totals p {
+      margin: 8px 0;
+    }
+    .totals span {
+      font-weight: 600; /* Bold totals */
+    }
+    @media (max-width: 768px) {
+      .cart-table th, .cart-table td {
+        padding: 8px;
+        font-size: 14px; /* Smaller text on phones */
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with logo and title -->
+  <header>
+    <img src="../Resources/logo.png" alt="TechGizmo Logo">
+    <h1>TechGizmo</h1>
+    <p>Empowering Your Tech Future</p>
+  </header>
+  <!-- Main checkout section -->
+  <div class="container">
+    <h2>Order Summary</h2>
+    <!-- Table to show cart summary (meets 2e.i: cart details) -->
+    <table id="summaryTable" class="cart-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Subtotal</th>
+          <th>Discount (5%)</th>
+          <th>Tax (15%)</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody></tbody> <!-- Filled by JavaScript -->
+    </table>
+    <!-- Show all costs with $ (meets 2e.i) -->
+    <div class="totals" id="grandTotal"></div>
+    <!-- Form to enter customer info -->
+    <form id="checkoutForm">
+      <label>Full Name</label>
+      <input type="text" id="customerName" required>
+      <label>Shipping Address</label>
+      <textarea id="address" rows="3" required></textarea>
+      <label>Amount Being Paid</label>
+      <input type="number" id="paymentAmount" min="1" step="0.01" required>
+      <div style="text-align:center;">
+        <button type="submit" class="btn btn-confirm">Confirm Checkout</button>
+        <button type="button" class="btn btn-cancel" onclick="window.location.href='Cart.html'">Cancel</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    // Load cart from localStorage (meets 2e.i: cart as array of objects)
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    // Get table body and totals section
+    const tableBody = document.querySelector("#summaryTable tbody");
+    const grandTotalDiv = document.getElementById("grandTotal");
+    const checkoutForm = document.getElementById("checkoutForm");
+
+    // If cart is empty, warn and go back
+    if (cart.length === 0) {
+      alert("Your cart is empty!");
+      window.location.href = "Cart.html";
+    }
+
+    // Show cart summary with all costs
+    function renderSummary() {
+      let subtotal = 0;
+      let discountTotal = 0;
+      let taxTotal = 0;
+      let grandTotal = 0;
+      tableBody.innerHTML = ""; // Clear table
+
+      // Loop through cart items
+      cart.forEach(item => {
+        const itemSubtotal = item.price * item.qty; // Price times quantity
+        const itemDiscount = (item.discount || item.price * 0.05) * item.qty; // 5% off
+        const itemTax = (itemSubtotal - itemDiscount) * 0.15; // 15% tax
+        const itemTotal = itemSubtotal - itemDiscount + itemTax; // Total per item
+        subtotal += itemSubtotal;
+        discountTotal += itemDiscount;
+        taxTotal += itemTax;
+        grandTotal += itemTotal;
+
+        // Create table row (meets 2e.i: show details)
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>${item.price.toFixed(2)}</td>
+          <td>${itemSubtotal.toFixed(2)}</td>
+          <td>${itemDiscount.toFixed(2)}</td>
+          <td>${itemTax.toFixed(2)}</td>
+          <td>${itemTotal.toFixed(2)}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      // Show all totals with $ (meets 2e.i)
+      grandTotalDiv.innerHTML = `
+        <p><strong>Subtotal:</strong> $${subtotal.toFixed(2)}</p>
+        <p><strong>Discount (5%):</strong> -$${discountTotal.toFixed(2)}</p>
+        <p><strong>Tax (15%):</strong> $${taxTotal.toFixed(2)}</p>
+        <p><strong>Grand Total:</strong> $${grandTotal.toFixed(2)}</p>
+      `;
+      return grandTotal; // Return for payment check
+    }
+
+    // Calculate total to use in form
+    const finalTotal = renderSummary();
+
+    // Handle form submission
+    checkoutForm.addEventListener("submit", function(e) {
+      e.preventDefault(); // Stop form from reloading
+
+      // Get form inputs
+      const customerName = document.getElementById("customerName").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const paymentAmount = parseFloat(document.getElementById("paymentAmount").value);
+
+      // Check if payment is enough
+      if (paymentAmount < finalTotal) {
+        alert("Amount paid must cover the total cost.");
+        return;
+      }
+
+      // Save shipping info to localStorage
+      const shippingInfo = { customerName, address };
+      localStorage.setItem("shippingInfo", JSON.stringify(shippingInfo));
+      // Save cart for invoice (meets 2e.i)
+      localStorage.setItem("invoiceCart", JSON.stringify(cart));
+
+      // Create invoice object
+      const invoice = {
+        invoiceNumber: "INV" + Date.now(), // Unique number
+        date: new Date().toLocaleString(), // Readable date
+        rawDate: new Date().toISOString(), // For sorting
+        items: cart.map(item => ({
+          name: item.name,
+          price: item.price,
+          qty: item.qty,
+          discount: item.discount || item.price * 0.05
+        })),
+        shipping: shippingInfo,
+        subtotal: cart.reduce((acc, item) => acc + item.price * item.qty, 0),
+        discount: cart.reduce((acc, item) => acc + (item.discount || item.price * 0.05) * item.qty, 0),
+        tax: cart.reduce((acc, item) => acc + ((item.price - (item.discount || item.price * 0.05)) * item.qty * 0.15), 0),
+        total: finalTotal,
+        amountPaid: paymentAmount,
+        balance: paymentAmount - finalTotal,
+        trn: "123456789",
+        company: "TechGizmo Inc."
+      };
+
+      // Save invoice to AllInvoices (meets invoice storage rule)
+      const allInvoices = JSON.parse(localStorage.getItem("AllInvoices")) || [];
+      allInvoices.push(invoice);
+      localStorage.setItem("AllInvoices", JSON.stringify(allInvoices));
+
+      // Save invoice for user
+      const userId = localStorage.getItem("currentUser") || "guest";
+      const userInvoices = JSON.parse(localStorage.getItem(`invoices_${userId}`)) || [];
+      userInvoices.push(invoice);
+      localStorage.setItem(`invoices_${userId}`, JSON.stringify(userInvoices));
+
+      // Clear cart after checkout
+      localStorage.removeItem("cart"); // Meets 2e.i: reset cart
+      alert("✅ Checkout successful! Invoice generated.");
+      window.location.href = "invoice.html"; // Go to invoice
+    });
+  </script>
+</body>
+</html>

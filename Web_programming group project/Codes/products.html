@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TechGizmo - Products</title>
+    <!-- Import Poppins font for consistent typography across the site -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #2c3e50;
+            line-height: 1.6;
+            background: #ecf0f1; /* Light background for clean look */
+        }
+        header {
+            background: #2c3e50; /* Dark header for contrast */
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative; /* Allows absolute positioning of nav */
+        }
+        header img {
+            max-width: 60px;
+            margin-right: 10px; /* Space between logo and title */
+        }
+        header h1 {
+            display: inline;
+            font-size: 28px;
+            margin: 0;
+        }
+        header p {
+            font-size: 16px;
+            margin: 5px 0 0; /* Subtitle spacing */
+        }
+        .header-nav {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%); /* Vertically centers cart button */
+        }
+        .cart-button {
+            background-color: #4CAF50; /* Green for visibility */
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 5px; /* Space between text and counter */
+        }
+        .cart-button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto; /* Centered with margin */
+            background: #fff;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 32px;
+        }
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3-column grid for products */
+            gap: 20px; /* Spacing between cards */
+        }
+        .product {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Card shadow */
+        }
+        .product img {
+            max-width: 120px; /* Consistent image size */
+            border-radius: 8px;
+        }
+        .product h3 {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        .product p {
+            font-size: 16px;
+            color: #7f8c8d; /* Gray for description/price */
+        }
+        .product button {
+            padding: 10px 20px;
+            background: #3498db; /* Blue for "Add to Cart" */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .product button:hover {
+            background: #2980b9; /* Darker blue on hover */
+        }
+        .go-to-cart-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            background-color: #4CAF50; /* Green for "Go to Cart" */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .go-to-cart-btn:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+        @media (max-width: 768px) {
+            .product-list {
+                grid-template-columns: repeat(2, 1fr); /* 2 columns on smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo, title, and cart button -->
+    <header>
+        <img src="../Resources/logo.png" alt="TechGizmo Logo">
+        <h1>TechGizmo</h1>
+        <p>Empowering Your Tech Future</p>
+        <div class="header-nav">
+
+            <!-- Cart button shows item count, links to MyCart.html -->
+            <button class="cart-button" onclick="goToMyCart()">
+                Cart: <span id="cartCounter">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main container for product list -->
+    <div class="container" id="productsPage">
+        <h1>Our Products</h1>
+
+        <!-- Dynamic product list populated by products.js -->
+        <div class="product-list" id="productList"></div>
+
+        <!-- Button to navigate to Cart.html -->
+        <button class="go-to-cart-btn" onclick="goToCart()">Go to Cart</button>
+    </div>
+    <script src="products.js"></script>
+</body>
+</html>

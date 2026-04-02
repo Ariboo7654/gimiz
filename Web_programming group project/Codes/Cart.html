@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<head>
+  <title>TechGizmo - Shopping Cart</title>
+  <!-- Load Poppins font for consistent text style -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #ecf0f1; /* Light gray background */
+      color: #2c3e50;
+    }
+    header {
+      background: #2c3e50; /* Dark header for contrast */
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    header img {
+      max-width: 60px; /* Small logo size */
+      margin-right: 10px;
+    }
+    header h1 {
+      display: inline;
+      font-size: 28px;
+      margin: 0;
+    }
+    header p {
+      font-size: 16px;
+      margin: 5px 0 0;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 40px auto; /* Center content */
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px; /* Rounded corners */
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Light shadow */
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 32px;
+    }
+    .cart-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0; /* Space around table */
+    }
+    .cart-table th, .cart-table td {
+      text-align: center;
+      padding: 12px;
+      border-bottom: 1px solid #ddd; /* Row separators */
+    }
+    .cart-table th {
+      background: #3498db; /* Blue header */
+      color: #fff;
+    }
+    .cart-table td {
+      background: #fff;
+    }
+    .cart-table input[type="number"] {
+      width: 60px;
+      padding: 6px;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 4px; /* Input for quantity */
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s ease; /* Smooth button effects */
+    }
+    .btn-remove {
+      background: #e74c3c; /* Red for remove */
+      color: #fff;
+    }
+    .btn-remove:hover {
+      background: #c0392b;
+    }
+    .cart-actions {
+      margin-top: 25px;
+      text-align: center; /* Center buttons */
+    }
+    .btn-clear {
+      background: #95a5a6; /* Gray for clear */
+      color: #fff;
+    }
+    .btn-clear:hover {
+      background: #7f8c8d;
+    }
+    .btn-checkout {
+      background: #2ecc71; /* Green for checkout */
+      color: #fff;
+      margin-left: 10px;
+    }
+    .btn-checkout:hover {
+      background: #27ae60;
+    }
+    .btn-close {
+      background: #f39c12; /* Orange for close */
+      color: #fff;
+      margin-left: 10px;
+    }
+    .btn-close:hover {
+      background: #d35400;
+    }
+    .totals {
+      margin-top: 20px;
+      font-size: 18px;
+      text-align: right; /* Show total on right */
+    }
+    .totals span {
+      font-weight: 600; /* Bold total */
+    }
+    @media (max-width: 768px) {
+      .cart-table th, .cart-table td {
+        padding: 8px;
+        font-size: 14px; /* Smaller text on phones */
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with logo and title -->
+  <header>
+    <img src="../Resources/logo.png" alt="TechGizmo Logo">
+    <h1>TechGizmo</h1>
+    <p>Empowering Your Tech Future</p>
+  </header>
+  <!-- Main section for cart -->
+  <div class="container">
+    <h2>Checkout Your Cart</h2>
+    <!-- Table to show cart items (meets 2e.i: display cart details) -->
+    <table id="cartTable" class="cart-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Subtotal</th>
+          <th>Discount (5%)</th>
+          <th>Tax (15%)</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody> <!-- Filled by JavaScript with cart items -->
+    </table>
+    <!-- Show grand total with $ (meets 2e.i) -->
+    <div class="totals" id="cartTotals"></div>
+    <!-- Buttons to manage cart -->
+    <div class="cart-actions">
+      <button class="btn btn-clear" onclick="clearCart()">Clear All</button>
+      <button class="btn btn-checkout" onclick="location.href='Checkout.html'">Check Out</button>
+      <button class="btn btn-close" onclick="window.location.href='products.html'">Close</button>
+    </div>
+  </div>
+  <script>
+    // Load cart from localStorage (meets 2e.i: cart as array of objects)
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    // Get table body and totals section
+    const tableBody = document.querySelector("#cartTable tbody");
+    const totalsDiv = document.getElementById("cartTotals");
+
+    // Show cart items in table with totals
+    function renderCart() {
+      // If cart is empty, warn and go to products
+      if (cart.length === 0) {
+        alert("Your cart is empty!");
+        window.location.href = "products.html";
+        return;
+      }
+      tableBody.innerHTML = ""; // Clear table
+      let totalPrice = 0; // Track grand total
+
+      // Loop through cart items
+      cart.forEach((item, index) => {
+        const subtotal = item.price * item.qty; // Price times quantity
+        const discount = (item.discount || item.price * 0.05) * item.qty; // 5% off
+        const tax = (subtotal - discount) * 0.15; // 15% tax
+        const total = subtotal - discount + tax; // Total for item
+        totalPrice += total; // Add to grand total
+
+        // Create table row for item (meets 2e.i: show details)
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.price.toFixed(2)}</td>
+          <td>
+            <input type="number" min="1" value="${item.qty}" onchange="updateQuantity(${index}, this.value)">
+          </td>
+          <td>${subtotal.toFixed(2)}</td>
+          <td>${discount.toFixed(2)}</td>
+          <td>${tax.toFixed(2)}</td>
+          <td>${total.toFixed(2)}</td>
+          <td><button class="btn btn-remove" onclick="removeItem(${index})">Remove</button></td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      // Show grand total with $ (meets 2e.i)
+      totalsDiv.innerHTML = `<span>Grand Total: $${totalPrice.toFixed(2)}</span>`;
+    }
+
+    // Update item quantity and save to localStorage
+    function updateQuantity(index, newQty) {
+      newQty = parseInt(newQty);
+      if (newQty < 1) newQty = 1; // No negative quantities
+      cart[index].qty = newQty; // Update quantity
+      localStorage.setItem("cart", JSON.stringify(cart)); // Save cart (meets 2e.i)
+      renderCart(); // Refresh table
+    }
+
+    // Remove item from cart
+    function removeItem(index) {
+      cart.splice(index, 1); // Delete item
+      localStorage.setItem("cart", JSON.stringify(cart)); // Save cart (meets 2e.i)
+      renderCart(); // Refresh table
+    }
+
+    // Clear all items from cart
+    function clearCart() {
+      if (confirm("Are you sure you want to clear the cart?")) {
+        cart = []; // Empty cart
+        localStorage.setItem("cart", JSON.stringify(cart)); // Save empty cart (meets 2e.i)
+        window.location.href = "products.html"; // Go to products
+      }
+    }
+
+    // Start by showing cart
+    renderCart();
+  </script>
+</body>
+</html>

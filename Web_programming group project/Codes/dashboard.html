@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechGizmo Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f4f7f9;
+      color: #333;
+    }
+
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    #statsInfo {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    canvas {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+    }
+
+    form {
+      background: rgb(255, 255, 255);
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 500px;
+      margin: 0 auto;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    label, input, button {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid #15066b;
+      border-radius: 8px;
+    }
+
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1c0277;
+    }
+
+    .invoice-entry {
+      background: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="login.html">Login</a>
+    <a href="products.html">Products</a>
+    <a href="invoice.html">Invoice</a>
+  </nav>
+</header>
+
+<main>
+  <div id="statsInfo">
+    <canvas id="totalUserGenderChart" width="500" height="300"></canvas>
+    <canvas id="userAgeGroupChart" width="500" height="300"></canvas>
+  </div>
+
+  <section id="invoices">
+    <form id="invoices-search-form">
+      <label for="search_invoice">Search Invoice by TRN</label>
+      <input type="text" id="search_invoice" placeholder="000-000-000" required aria-label="Enter TRN to search for invoices">
+      <button type="submit">Search</button>
+    </form>
+    <div id="invoice"></div>
+  </section>
+</main>
+
+<footer>
+  &copy; 2025 TechGizmo. All rights reserved.
+</footer>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const users = JSON.parse(localStorage.getItem("RegistrationData")) || [];
+
+    showUserGenderChart(users);
+    showAgeGroupChart(users);
+
+    const searchForm = document.getElementById("invoices-search-form");
+    searchForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      searchInvoices(users);
+    });
+  });
+
+  function showUserGenderChart(users) {
+    const genderCounts = { Male: 0, Female: 0, Other: 0 };
+
+    users.forEach(user => {
+      if (genderCounts.hasOwnProperty(user.gender)) {
+        genderCounts[user.gender]++;
+      } else {
+        genderCounts.Other++; // Default to "Other" for unrecognized genders
+      }
+    });
+
+    new Chart(document.getElementById("totalUserGenderChart").getContext("2d"), {
+      type: "pie",
+      data: {
+        labels: Object.keys(genderCounts),
+        datasets: [{
+          label: "Gender Distribution",
+          data: Object.values(genderCounts),
+          backgroundColor: ["#3498db", "#e74c3c", "#9b59b6"]
+        }]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
+  function showAgeGroupChart(users) {
+    const ageGroups = {
+      "18–24": 0,
+      "25–34": 0,
+      "35–44": 0,
+      "45–54": 0,
+      "55+": 0
+    };
+
+    users.forEach(user => {
+      const age = getAge(new Date(user.dob));
+      if (age >= 18 && age <= 24) ageGroups["18–24"]++;
+      else if (age <= 34) ageGroups["25–34"]++;
+      else if (age <= 44) ageGroups["35–44"]++;
+      else if (age <= 54) ageGroups["45–54"]++;
+      else ageGroups["55+"]++;
+    });
+
+    new Chart(document.getElementById("userAgeGroupChart").getContext("2d"), {
+      type: "bar",
+      data: {
+        labels: Object.keys(ageGroups),
+        datasets: [{
+          label: "Age Groups",
+          data: Object.values(ageGroups),
+          backgroundColor: "#2ecc71"
+        }]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+
+  function getAge(birthDate) {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
+  function searchInvoices(users) {
+    const trn = document.getElementById("search_invoice").value.trim(); // Get the TRN input
+    const invoiceDiv = document.getElementById("invoice"); // Target the invoice display section
+    const allInvoices = JSON.parse(localStorage.getItem("AllInvoices")) || []; // Retrieve all invoices from localStorage
+
+    // Find invoices matching the TRN
+    const matchingInvoices = allInvoices.filter(invoice => invoice.trn === trn);
+
+    if (matchingInvoices.length > 0) {
+      // Display matching invoices
+      invoiceDiv.innerHTML = matchingInvoices.map((inv, i) => `
+        <div class="invoice-entry">
+          <h3>Invoice #${i + 1}</h3>
+          <p>Date: ${inv.date}</p>
+          <p>Total: $${inv.total.toFixed(2)}</p>
+          <p>Items: ${inv.items.length} item(s)</p>
+        </div>
+      `).join("");
+    } else {
+      // Display message if no invoices are found
+      invoiceDiv.innerHTML = "<p>No invoices found for this TRN.</p>";
+    }
+  }
+</script>
+
+</body>
+</html>
